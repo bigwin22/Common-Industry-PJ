@@ -6,7 +6,7 @@ import numpy as np
 # JSON 파일 로드
 with open('K to H.json', 'r', encoding='utf-8') as f:
     KtoH = json.load(f)
-with open('Processed_data.json', 'r', encoding='utf-8') as f:
+with open('Processed_data_verified.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 # JSON 데이터를 DataFrame으로 변환 및 전처리
