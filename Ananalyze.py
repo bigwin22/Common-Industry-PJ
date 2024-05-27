@@ -1,62 +1,82 @@
+import json
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from statsmodels.tsa.arima.model import ARIMA
+import numpy as np
 
-# 데이터 로드 (실제 데이터 파일 경로로 대체)
-# df = pd.read_csv('population_growth.csv')
+# JSON 파일 로드
+with open('K to H.json', 'r', encoding='utf-8') as f:
+    KtoH = json.load(f)
+with open('Processed_data.json', 'r', encoding='utf-8') as f:
+    data = json.load(f)
 
-# 예제 데이터 (실제 데이터를 사용하려면 위의 read_csv 부분을 사용)
-data = {
-    'Year': [2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010],
-    'Korea_Growth_Rate': [1.1, 1.05, 1.02, 1.03, 1.01, 0.98, 0.95, 0.9, 0.85, 0.8, 0.75],
-    'Japan_Growth_Rate': [0.5, 0.48, 0.46, 0.44, 0.42, 0.4, 0.38, 0.36, 0.34, 0.32, 0.3]
-}
+# JSON 데이터를 DataFrame으로 변환 및 전처리
+def preprocess_data(country_data, mapping):
+    processed_data = {}
+    for indicator_key, values in country_data.items():
+        indicator_name = mapping.get(indicator_key, indicator_key)
+        processed_data[indicator_name] = {int(year): value for year, value in values.items()}
+    return processed_data
 
-df = pd.DataFrame(data)
+# 한국 데이터 처리
+kor_data = preprocess_data(data['country/KOR'], KtoH)
 
-# 데이터 시각화
-plt.plot(df['Year'], df['Korea_Growth_Rate'], label='Korea')
-plt.plot(df['Year'], df['Japan_Growth_Rate'], label='Japan')
-plt.xlabel('Year')
-plt.ylabel('Growth Rate')
-plt.title('Population Growth Rate Comparison')
-plt.legend()
-plt.show()
+# 일본 데이터 처리
+jpn_data = preprocess_data(data['country/JPN'], KtoH)
 
-# 상관 분석
-correlation = np.corrcoef(df['Korea_Growth_Rate'], df['Japan_Growth_Rate'])[0, 1]
-print(f"상관계수: {correlation}")
+# 각 지표에 대해 연도별 데이터를 DataFrame으로 변환 및 0인 값 처리
+def create_indicator_df(kor_data, jpn_data):
+    indicators = list(kor_data.keys())
+    combined_data = {indicator: {'Year': [], 'KOR': [], 'JPN': []} for indicator in indicators}
+    
+    for indicator in indicators:
+        years = sorted(set(kor_data[indicator].keys()).union(set(jpn_data[indicator].keys())))
+        kor_values = [kor_data[indicator].get(year, 0) for year in years]
+        jpn_values = [jpn_data[indicator].get(year, 0) for year in years]
 
-# 시계열 분석 및 예측
-korea_growth = df['Korea_Growth_Rate']
+        # 0이 아닌 첫 번째 값의 인덱스 찾기
+        first_nonzero_index_kor = next((i for i, value in enumerate(kor_values) if value != 0), len(kor_values))
+        first_nonzero_index_jpn = next((i for i, value in enumerate(jpn_values) if value != 0), len(jpn_values))
+        first_nonzero_index = max(first_nonzero_index_kor, first_nonzero_index_jpn)
 
-# ARIMA 모델 피팅 (p, d, q 값은 적절히 조정)
-model = ARIMA(korea_growth, order=(1, 1, 1))
-model_fit = model.fit()
+        # 뒤쪽에서 0이 아닌 마지막 값의 인덱스 찾기
+        last_nonzero_index_kor = next((i for i, value in enumerate(reversed(kor_values)) if value != 0), len(kor_values))
+        last_nonzero_index_jpn = next((i for i, value in enumerate(reversed(jpn_values)) if value != 0), len(jpn_values))
+        last_nonzero_index = max(last_nonzero_index_kor, last_nonzero_index_jpn)
 
-# 향후 10년 예측
-forecast_steps = 10
-forecast, stderr, conf_int = model_fit.forecast(steps=forecast_steps)
-years_forecast = range(df['Year'].iloc[-1] + 1, df['Year'].iloc[-1] + forecast_steps + 1)
+        # 0이 아닌 값부터 데이터 저장, 마지막 0 제거
+        if last_nonzero_index != 0:
+            combined_data[indicator]['Year'] = years[first_nonzero_index:len(years) - last_nonzero_index]
+            combined_data[indicator]['KOR'] = kor_values[first_nonzero_index:len(kor_values) - last_nonzero_index]
+            combined_data[indicator]['JPN'] = jpn_values[first_nonzero_index:len(jpn_values) - last_nonzero_index]
+        else:
+            combined_data[indicator]['Year'] = years[first_nonzero_index:]
+            combined_data[indicator]['KOR'] = kor_values[first_nonzero_index:]
+            combined_data[indicator]['JPN'] = jpn_values[first_nonzero_index:]
+    
+    return combined_data
 
-# 예측 결과 시각화
-plt.plot(df['Year'], df['Korea_Growth_Rate'], label='Korea Actual')
-plt.plot(years_forecast, forecast, label='Korea Forecast', linestyle='--')
-plt.xlabel('Year')
-plt.ylabel('Growth Rate')
-plt.title('Korea Population Growth Rate Forecast')
-plt.legend()
-plt.show()
+combined_data = create_indicator_df(kor_data, jpn_data)
 
-# 예측된 성장률과 일본의 과거 성장률 비교
-japan_past_years = df['Year'][-forecast_steps:]
-japan_past_growth = df['Japan_Growth_Rate'][-forecast_steps:]
+# 상관계수 계산 및 출력
+correlation_results = {}
 
-plt.plot(years_forecast, forecast, label='Korea Forecast')
-plt.plot(japan_past_years, japan_past_growth, label='Japan Past', linestyle='--')
-plt.xlabel('Year')
-plt.ylabel('Growth Rate')
-plt.title('Korea Future vs Japan Past Growth Rate')
-plt.legend()
+for indicator, data in combined_data.items():
+    df = pd.DataFrame(data)
+    if not df['KOR'].empty and not df['JPN'].empty:
+        correlation = np.corrcoef(df['KOR'], df['JPN'])[0, 1]
+        correlation_results[indicator] = correlation
+        print(f'{indicator}의 상관계수: {correlation}')
+    else:
+        print(f'{indicator}의 상관계수를 계산할 수 없습니다 (데이터가 부족함).')
+
+plt.rcParams['font.family'] = 'Malgun Gothic'
+plt.rcParams['font.size'] = 10
+plt.rcParams['figure.figsize'] = (12, 6)
+plt.rcParams['axes.unicode_minus'] = False
+# 상관계수 시각화
+plt.barh(list(correlation_results.keys()), list(correlation_results.values()))
+plt.xlabel('상관계수')
+plt.title('각 지표별 한국과 일본의 상관계수')
+plt.grid(True, linestyle='--', linewidth=0.5)
+plt.tight_layout()
 plt.show()

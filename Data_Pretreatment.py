@@ -22,7 +22,7 @@ kor_data = preprocess_data(data['country/KOR'], KtoH)
 # 일본 데이터 처리
 jpn_data = preprocess_data(data['country/JPN'], KtoH)
 
-# 각 지표에 대해 연도별 데이터를 DataFrame으로 변환 및 앞의 0인 값 제거
+# 각 지표에 대해 연도별 데이터를 DataFrame으로 변환 및 0인 값 처리
 def create_indicator_df(kor_data, jpn_data):
     indicators = list(kor_data.keys())
     combined_data = {indicator: {'Year': [], 'KOR': [], 'JPN': []} for indicator in indicators}
@@ -37,10 +37,20 @@ def create_indicator_df(kor_data, jpn_data):
         first_nonzero_index_jpn = next((i for i, value in enumerate(jpn_values) if value != 0), len(jpn_values))
         first_nonzero_index = max(first_nonzero_index_kor, first_nonzero_index_jpn)
 
-        # 0이 아닌 값부터 데이터 저장
-        combined_data[indicator]['Year'] = years[first_nonzero_index:]
-        combined_data[indicator]['KOR'] = kor_values[first_nonzero_index:]
-        combined_data[indicator]['JPN'] = jpn_values[first_nonzero_index:]
+        # 뒤쪽에서 0이 아닌 마지막 값의 인덱스 찾기
+        last_nonzero_index_kor = next((i for i, value in enumerate(reversed(kor_values)) if value != 0), len(kor_values))
+        last_nonzero_index_jpn = next((i for i, value in enumerate(reversed(jpn_values)) if value != 0), len(jpn_values))
+        last_nonzero_index = max(last_nonzero_index_kor, last_nonzero_index_jpn)
+
+        # 0이 아닌 값부터 데이터 저장, 마지막 0 제거
+        if last_nonzero_index != 0:
+            combined_data[indicator]['Year'] = years[first_nonzero_index:len(years) - last_nonzero_index]
+            combined_data[indicator]['KOR'] = kor_values[first_nonzero_index:len(kor_values) - last_nonzero_index]
+            combined_data[indicator]['JPN'] = jpn_values[first_nonzero_index:len(jpn_values) - last_nonzero_index]
+        else:
+            combined_data[indicator]['Year'] = years[first_nonzero_index:]
+            combined_data[indicator]['KOR'] = kor_values[first_nonzero_index:]
+            combined_data[indicator]['JPN'] = jpn_values[first_nonzero_index:]
     
     return combined_data
 
@@ -55,7 +65,7 @@ plt.rcParams['axes.unicode_minus'] = False
 # 각 지표에 대해 그래프 생성 및 저장
 for indicator, data in combined_data.items():
     df = pd.DataFrame(data)
-    #df를 excel로 저장
+    # df를 excel로 저장
     df.to_excel(f'./excel/{indicator}.xlsx')
     
     plt.plot(df['Year'], df['KOR'], label='KOR')
