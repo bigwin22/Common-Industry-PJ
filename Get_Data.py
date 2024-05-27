@@ -35,6 +35,7 @@ json.dump(indicators_KtoH, open('K to H.json', 'w', encoding='utf-8'), indent=4,
 # exit()
 
 # 데이터 가져오기
+#삭제: 2 2 1 2 2 2
 duplicated_data = {}
 data = dc.get_stat_all(country, dcids)#데이터 가져오기
 for dcid_name in data["country/KOR"].keys():

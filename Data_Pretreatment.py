@@ -1,75 +1,72 @@
 import json
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
-# 데이터 전처리
-# Preprocessing data
-# 데이터를 가져온 후, 데이터를 전처리한다.
-
-# data.json 불러오기
-# Load data.json
-with open('data.json', 'r', encoding='utf-8') as f:
-    data = json.load(f)
-with open('H to K.json', 'r', encoding='utf-8') as f:
-    Htok = json.load(f)
+# JSON 파일 로드
 with open('K to H.json', 'r', encoding='utf-8') as f:
-    Ktoh = json.load(f)
+    KtoH = json.load(f)
+with open('Processed_data.json', 'r', encoding='utf-8') as f:
+    data = json.load(f)
 
-pre_Processed_data = {}
-Processed_data = {}
+# JSON 데이터를 DataFrame으로 변환 및 전처리
+def preprocess_data(country_data, mapping):
+    processed_data = {}
+    for indicator_key, values in country_data.items():
+        indicator_name = mapping.get(indicator_key, indicator_key)
+        processed_data[indicator_name] = {int(year): value for year, value in values.items()}
+    return processed_data
 
-#쓸모없는 데이터 삭제
-for country in data.keys():
-    pre_Processed_data[country] = {}
-    for dcid_name in data[country].keys():
-        pre_Processed_data[country][Ktoh[dcid_name]] = data[country][dcid_name]["sourceSeries"][0]["val"]
+# 한국 데이터 처리
+kor_data = preprocess_data(data['country/KOR'], KtoH)
 
-#데이터 정렬
-for country in pre_Processed_data.keys():
-    Processed_data[country] = {}
-    for indicator in pre_Processed_data[country].keys():
-        keys = list(pre_Processed_data[country][indicator].keys())
-        keys.sort()
+# 일본 데이터 처리
+jpn_data = preprocess_data(data['country/JPN'], KtoH)
 
-        Processed_data[country][indicator] = {}
-        for key in keys:
-            Processed_data[country][indicator][key] = pre_Processed_data[country][indicator][key]
-with open('Processed_data.json', 'w', encoding='utf-8') as f:
-    json.dump(Processed_data, f, indent=4, ensure_ascii=False)
+# 각 지표에 대해 연도별 데이터를 DataFrame으로 변환 및 앞의 0인 값 제거
+def create_indicator_df(kor_data, jpn_data):
+    indicators = list(kor_data.keys())
+    combined_data = {indicator: {'Year': [], 'KOR': [], 'JPN': []} for indicator in indicators}
+    
+    for indicator in indicators:
+        years = sorted(set(kor_data[indicator].keys()).union(set(jpn_data[indicator].keys())))
+        kor_values = [kor_data[indicator].get(year, 0) for year in years]
+        jpn_values = [jpn_data[indicator].get(year, 0) for year in years]
 
+        # 0이 아닌 첫 번째 값의 인덱스 찾기
+        first_nonzero_index_kor = next((i for i, value in enumerate(kor_values) if value != 0), len(kor_values))
+        first_nonzero_index_jpn = next((i for i, value in enumerate(jpn_values) if value != 0), len(jpn_values))
+        first_nonzero_index = max(first_nonzero_index_kor, first_nonzero_index_jpn)
 
-#엑셀화(데이터 프레임화)(각각으로 하나씩)
-#Excelization (DataFrame) (one for each)
-df = pd.DataFrame(Processed_data["country/KOR"])
-df.to_excel('KOR.xlsx')
-df = pd.DataFrame(Processed_data["country/JPN"])
-df.to_excel('JPN.xlsx')
+        # 0이 아닌 값부터 데이터 저장
+        combined_data[indicator]['Year'] = years[first_nonzero_index:]
+        combined_data[indicator]['KOR'] = kor_values[first_nonzero_index:]
+        combined_data[indicator]['JPN'] = jpn_values[first_nonzero_index:]
+    
+    return combined_data
 
-#엑셀화(데이터 프레임화)(한꺼번에)
-#Excelization (DataFrame) (at once)
-df = pd.DataFrame(Processed_data["country/KOR"])
-df2 = pd.DataFrame(Processed_data["country/JPN"])
-with pd.ExcelWriter('comparison.xlsx') as writer:
-    df.to_excel(writer, sheet_name='KOR')
-    df2.to_excel(writer, sheet_name='JPN')
+combined_data = create_indicator_df(kor_data, jpn_data)
 
-#그래프화(이미지도 저장)
-#Graphing
+# 그래프 그리기 설정
 plt.rcParams['font.family'] = 'Malgun Gothic'
-plt.rcParams['font.size'] = 5
-plt.rcParams['figure.figsize'] = (10, 5)
+plt.rcParams['font.size'] = 10
+plt.rcParams['figure.figsize'] = (12, 6)
 plt.rcParams['axes.unicode_minus'] = False
-for indicator in Processed_data["country/KOR"].keys():
-    plt.plot(Processed_data["country/KOR"][indicator].keys(), Processed_data["country/KOR"][indicator].values(), label='KOR')
-    plt.plot(Processed_data["country/JPN"][indicator].keys(), Processed_data["country/JPN"][indicator].values(), label='JPN')
-    plt.title(indicator)
+
+# 각 지표에 대해 그래프 생성 및 저장
+for indicator, data in combined_data.items():
+    df = pd.DataFrame(data)
+    #df를 excel로 저장
+    df.to_excel(f'./excel/{indicator}.xlsx')
+    
+    plt.plot(df['Year'], df['KOR'], label='KOR')
+    plt.plot(df['Year'], df['JPN'], label='JPN')
+    plt.title(f'{indicator} 비교')
     plt.xlabel('년도')
     plt.ylabel('값')
     plt.legend()
+    plt.xticks(rotation=45)  # X축 틱 설정
+    plt.gca().xaxis.set_major_locator(plt.MaxNLocator(nbins=20))  # 틱의 최대 개수 설정
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+    plt.tight_layout()
     plt.savefig(f'./images/{indicator}.png')
-    #plt 초기화
     plt.clf()
-
-
-
