@@ -2,7 +2,9 @@
     "경제 지표": {
         "GDP 관련 지표": {
             "총 국내총생산(GDP) 성장률": "sdg/NY_GDP_MKTP_KD_ZG",
-            "1인당 GDP 성장률": "worldBank/NY_GDP_PCAP_KD_ZG"
+            "1인당 GDP 성장률": "worldBank/NY_GDP_PCAP_KD_ZG",
+            "주식 시장 시가총액(GDP 대비 %)":"worldBank/GFDD_DM_01",
+            "국내 기업 시가총액(GDP 대비 %)":"worldBank/CM_MKT_LCAP_GD_ZS"
         },
         "산업 구조": {
             "산업 부가가치(PER GDP)": "worldBank/NV_IND_TOTL_ZS"
@@ -19,8 +21,7 @@
         },
         "노동 시장 지표": {
             "실업률": "UnemploymentRate_Person",
-            "노동력 참여율, 전체(15세 이상 전체 인구 대비 %)(국가 추정치)": "worldBank/SL_TLF_CACT_NE_ZS",
-            "노동 생산성": "노동력의 생산성 비교"
+            "노동력 참여율, 전체(15세 이상 전체 인구 대비 %)(국가 추정치)": "worldBank/SL_TLF_CACT_NE_ZS"
         }
     },
     "기술 및 혁신 지표": {
