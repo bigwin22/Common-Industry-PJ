@@ -39,9 +39,37 @@ with open('Processed_data.json', 'w', encoding='utf-8') as f:
     json.dump(Processed_data, f, indent=4, ensure_ascii=False)
 
 
-#엑셀화(데이터 프레임화)
-#Excelization (DataFrame)
-df = {}
-for country in Processed_data.keys():
-    df[country] = pd.DataFrame(Processed_data[country])
-    df[country].to_excel(f'{country}.xlsx')
+#엑셀화(데이터 프레임화)(각각으로 하나씩)
+#Excelization (DataFrame) (one for each)
+df = pd.DataFrame(Processed_data["country/KOR"])
+df.to_excel('KOR.xlsx')
+df = pd.DataFrame(Processed_data["country/JPN"])
+df.to_excel('JPN.xlsx')
+
+#엑셀화(데이터 프레임화)(한꺼번에)
+#Excelization (DataFrame) (at once)
+df = pd.DataFrame(Processed_data["country/KOR"])
+df2 = pd.DataFrame(Processed_data["country/JPN"])
+with pd.ExcelWriter('comparison.xlsx') as writer:
+    df.to_excel(writer, sheet_name='KOR')
+    df2.to_excel(writer, sheet_name='JPN')
+
+#그래프화(이미지도 저장)
+#Graphing
+plt.rcParams['font.family'] = 'Malgun Gothic'
+plt.rcParams['font.size'] = 5
+plt.rcParams['figure.figsize'] = (10, 5)
+plt.rcParams['axes.unicode_minus'] = False
+for indicator in Processed_data["country/KOR"].keys():
+    plt.plot(Processed_data["country/KOR"][indicator].keys(), Processed_data["country/KOR"][indicator].values(), label='KOR')
+    plt.plot(Processed_data["country/JPN"][indicator].keys(), Processed_data["country/JPN"][indicator].values(), label='JPN')
+    plt.title(indicator)
+    plt.xlabel('년도')
+    plt.ylabel('값')
+    plt.legend()
+    plt.savefig(f'./images/{indicator}.png')
+    #plt 초기화
+    plt.clf()
+
+
+
