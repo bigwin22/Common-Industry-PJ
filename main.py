@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 # Get the data for the KOR
 gdp_growth = dc.build_time_series_dataframe(['country/KOR', 'country/JPN'], "sdg/NY_GDP_MKTP_KD_ZG")
 stock_capitalization = dc.build_time_series_dataframe(['country/KOR', 'country/JPN'], "worldBank/GFDD_DM_01")
+population_change = dc.build_time_series_dataframe(['country/KOR', 'country/JPN'], "IncrementalCount_Person")
 # print(dc.get_stat_all(["country/KOR"], ["sdg/NY_GDP_MKTP_KD_ZG", ]))
 #export the data to a csv file
-stock_capitalization.to_csv('KOR_GDP.csv')
+population_change.to_csv('KOR_GDP.csv')
 
