@@ -1,0 +1,13 @@
+{
+    "sdg/NY_GDP_MKTP_KD_ZG": "총 국내총생산(GDP) 성장률",
+    "worldBank/NY_GDP_PCAP_KD_ZG": "1인당 GDP 성장률",
+    "worldBank/GFDD_DM_01": "주식 시장 시가총액(GDP 대비 %)",
+    "worldBank/CM_MKT_LCAP_GD_ZS": "국내 기업 시가총액(GDP 대비 %)",
+    "worldBank/NV_IND_TOTL_ZS": "산업 부가가치(PER GDP)",
+    "worldBank/NE_TRD_GNFS_ZS": "GDP대비 무역 비율(상품 및 서비스 포함)",
+    "worldBank/BN_CAB_XOKA_GD_ZS": "GDP 대비 경상수지 비율",
+    "GrowthRate_Count_Person": "인구 성장률",
+    "FertilityRate_Person_Female": "출생률",
+    "worldBank/SL_TLF_CACT_NE_ZS": "노동력 참여율, 전체(15세 이상 전체 인구 대비 %)(국가 추정치)",
+    "worldBank/GB_XPD_RSDV_GD_ZS": "GDP 대비 R&D 지출 비율"
+}

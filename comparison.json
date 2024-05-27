@@ -20,13 +20,12 @@
             "출생률": "FertilityRate_Person_Female"
         },
         "노동 시장 지표": {
-            "실업률": "UnemploymentRate_Person",
             "노동력 참여율, 전체(15세 이상 전체 인구 대비 %)(국가 추정치)": "worldBank/SL_TLF_CACT_NE_ZS"
         }
     },
     "기술 및 혁신 지표": {
         "R&D 지출": {
-            "GDP 대비 R&D 지출 비율": "Count_Person_Years65Onwards_Resident SDG/GB_XPD_RSDV"
+            "GDP 대비 R&D 지출 비율": "worldBank/GB_XPD_RSDV_GD_ZS"
         }
     }
 }
