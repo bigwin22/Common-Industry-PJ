@@ -2,11 +2,13 @@ import json
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+import Data_Pretreatment as dp
 
 # JSON 파일 로드
-with open('K to H.json', 'r', encoding='utf-8') as f:
+with open('./ETC_DATA/K to H.json', 'r', encoding='utf-8') as f:
     KtoH = json.load(f)
-with open('Processed_data_verified.json', 'r', encoding='utf-8') as f:
+with open('./DATA/Processed_data_verified.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 # JSON 데이터를 DataFrame으로 변환 및 전처리
@@ -79,4 +81,6 @@ plt.xlabel('상관계수')
 plt.title('각 지표별 한국과 일본의 상관계수')
 plt.grid(True, linestyle='--', linewidth=0.5)
 plt.tight_layout()
+os.makedirs(f'./images/Period_{dp.Period}', exist_ok=True)
+plt.savefig(f'./images/Period_{dp.Period}/상관관계.png')
 plt.show()

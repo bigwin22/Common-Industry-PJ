@@ -1,11 +1,15 @@
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
+
+
+Period = int(input('조사 기간을 입력하세요: '))
 
 # JSON 파일 로드
-with open('K to H.json', 'r', encoding='utf-8') as f:
+with open('./ETC_DATA/K to H.json', 'r', encoding='utf-8') as f:
     KtoH = json.load(f)
-with open('Processed_data.json', 'r', encoding='utf-8') as f:
+with open('./DATA/Processed_data.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 # JSON 데이터를 DataFrame으로 변환 및 전처리
@@ -13,7 +17,7 @@ def preprocess_data(country_data, mapping):
     processed_data = {}
     for indicator_key, values in country_data.items():
         indicator_name = mapping.get(indicator_key, indicator_key)
-        processed_data[indicator_name] = {int(year): value for year, value in values.items()}
+        processed_data[indicator_name] = {int(year): value for year, value in values.items() if int(year) >= 2022 - Period}
     return processed_data
 
 # 한국 데이터 처리
@@ -72,7 +76,9 @@ for country in ['KOR', 'JPN']:
     json_data[f'country/{country}'] ={}
     for indicator, values in combined_data.items():
         json_data[f'country/{country}'][indicator] = {year: value for year, value in zip(values['Year'], values[country])}
-with open('Processed_data_verified.json', 'w', encoding='utf-8') as f:
+    
+os.makedirs(f'./DATA/Period_{Period}', exist_ok=True)
+with open(f'./DATA/Period_{Period}/Processed_data_verified.json', 'w', encoding='utf-8') as f:
     json.dump(json_data, f, ensure_ascii=False, indent=4)
 
 # 그래프 그리기 설정
@@ -85,7 +91,8 @@ plt.rcParams['axes.unicode_minus'] = False
 for indicator, data in combined_data.items():
     df = pd.DataFrame(data)
     # df를 excel로 저장
-    df.to_excel(f'./excel/{indicator}.xlsx')
+    os.makedirs(f'./excel/Period_{Period}', exist_ok=True)
+    df.to_excel(f'./excel/Period_{Period}/{indicator}.xlsx')
     
     plt.plot(df['Year'], df['KOR'], label='KOR')
     plt.plot(df['Year'], df['JPN'], label='JPN')
@@ -97,5 +104,6 @@ for indicator, data in combined_data.items():
     plt.gca().xaxis.set_major_locator(plt.MaxNLocator(nbins=20))  # 틱의 최대 개수 설정
     plt.grid(True, which='both', linestyle='--', linewidth=0.5)
     plt.tight_layout()
-    plt.savefig(f'./images/{indicator}.png')
+    os.makedirs(f'./images/Period_{Period}', exist_ok=True)
+    plt.savefig(f'./images/Period_{Period}/{indicator}.png')
     plt.clf()

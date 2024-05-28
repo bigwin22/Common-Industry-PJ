@@ -3,11 +3,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
+import os
+import Data_Pretreatment as dp
 
 # JSON 파일 로드
-with open('K to H.json', 'r', encoding='utf-8') as f:
+with open('./ETC_DATA/K to H.json', 'r', encoding='utf-8') as f:
     KtoH = json.load(f)
-with open('Processed_data_verified.json', 'r', encoding='utf-8') as f:
+with open('./DATA/Processed_data_verified.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 # JSON 데이터를 DataFrame으로 변환 및 전처리
@@ -66,5 +68,6 @@ plt.ylabel('지표')
 plt.title('한국과 일본의 예측된 미래 데이터와의 상관관계')
 plt.grid(True, linestyle='--', linewidth=0.5)
 plt.tight_layout()
-plt.savefig('./images/prediction_correlation_results.png')
+os.makedirs(f'./images/Period_{dp.Period}', exist_ok=True)
+plt.savefig(f'./images/Period_{dp.Period}/prediction_correlation_results.png')
 plt.show()

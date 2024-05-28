@@ -9,7 +9,7 @@ import json
 
 #comparison.json 열고 안에 있는 value들 가져오기
 # Open 'comparison.json' and get the data inside
-with open('comparison.json', 'r', encoding='utf-8') as f:
+with open('./ETC_DATA/comparison.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 # Extract the dcids
@@ -46,6 +46,6 @@ for dcid_name in data["country/KOR"].keys():
             del data["country/KOR"][dcid_name]["sourceSeries"][1]
             del data["country/JPN"][dcid_name]["sourceSeries"][1]
 # 데이터 json 파일로 저장
-with open('raw_data.json', 'w', encoding='utf-8') as f:
+with open('./DATA/raw_data.json', 'w', encoding='utf-8') as f:
     json.dump(data, f, indent=4, ensure_ascii=False)
 
