@@ -65,6 +65,16 @@ def create_indicator_df(kor_data, jpn_data):
 
 combined_data = create_indicator_df(kor_data, jpn_data)
 
+#json 파일로 저장
+#{'country/KOR':{indicator:{year:value}}형식으로 저장
+json_data = {}
+for country in ['KOR', 'JPN']:
+    json_data[f'country/{country}'] ={}
+    for indicator, values in combined_data.items():
+        json_data[f'country/{country}'][indicator] = {year: value for year, value in zip(values['Year'], values[country])}
+with open('Processed_data_verified.json', 'w', encoding='utf-8') as f:
+    json.dump(json_data, f, ensure_ascii=False, indent=4)
+
 # 그래프 그리기 설정
 plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['font.size'] = 10
