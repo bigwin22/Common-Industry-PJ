@@ -2,8 +2,6 @@
 # 방식: datacommons_pandas 라이브러리를 사용하여 데이터를 가져온다.
 # 목적: 한국 및 일본의 데이터 비교를 통한 유사성의 타당성 검증
 
-from ETC import *
-
 import datacommons_pandas as dc
 import pandas as pd
 import matplotlib.pyplot as plt
