@@ -33,22 +33,23 @@ json.dump(indicators_KtoH, open('./ETC_DATA/K to H.json', 'w', encoding='utf-8')
 # exit()
 
 # 데이터 가져오기
-#삭제: 2 2 1 2 2 2
+#삭제: 2,1,2,2,2,2
 duplicated_data = {}
+del_num = [2,1,2,2,2,2]
+flag = 0
 data = dc.get_stat_all(country, dcids)#데이터 가져오기
 for dcid_name in data["country/KOR"].keys():
     if len(data["country/KOR"][dcid_name]["sourceSeries"]) == 2:
-        del_num = [2, 2, 1, 2, 2, 2]
-        del_input = input(f"{dcid_name}의 데이터가 중복되었습니다. 어떤 데이터를 삭제할까요? (1: {data['country/KOR'][dcid_name]['sourceSeries'][0]['measurementMethod']}, 2: {data['country/KOR'][dcid_name]['sourceSeries'][1]['measurementMethod']})")
-        # for i in del_num:
-        #     del data["country/KOR"][dcid_name]["sourceSeries"][i-1]
-        #     del data["country/JPN"][dcid_name]["sourceSeries"][i-1]
-        if del_input == "1":
-            del data["country/KOR"][dcid_name]["sourceSeries"][0]
-            del data["country/JPN"][dcid_name]["sourceSeries"][0]
-        elif del_input == "2":
-            del data["country/KOR"][dcid_name]["sourceSeries"][1]
-            del data["country/JPN"][dcid_name]["sourceSeries"][1]
+        # del_input = input(f"{dcid_name}의 데이터가 중복되었습니다. 어떤 데이터를 삭제할까요? (1: {data['country/KOR'][dcid_name]['sourceSeries'][0]['measurementMethod']}, 2: {data['country/KOR'][dcid_name]['sourceSeries'][1]['measurementMethod']})")
+        del data["country/KOR"][dcid_name]["sourceSeries"][del_num[flag]-1]
+        del data["country/JPN"][dcid_name]["sourceSeries"][del_num[flag]-1]
+        flag += 1
+        # if del_input == "1":
+        #     del data["country/KOR"][dcid_name]["sourceSeries"][0]
+        #     del data["country/JPN"][dcid_name]["sourceSeries"][0]
+        # elif del_input == "2":
+        #     del data["country/KOR"][dcid_name]["sourceSeries"][1]
+        #     del data["country/JPN"][dcid_name]["sourceSeries"][1]
 # 데이터 json 파일로 저장
 with open('./DATA/raw_data.json', 'w', encoding='utf-8') as f:
     json.dump(data, f, indent=4, ensure_ascii=False)
