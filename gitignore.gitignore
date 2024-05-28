@@ -1,4 +1,6 @@
 __pycache__
-.vscode
-./excel
-./images
+/vscode
+/excel
+/images
+.xlsx
+.png
