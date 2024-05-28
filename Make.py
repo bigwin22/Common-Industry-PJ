@@ -9,4 +9,4 @@ file_paths = ['Get_Data.py', 'Data_Pretreatment.py', 'Prediction_Analyze.py', 'C
 
 # 파일들을 순차적으로 실행
 for file_path in file_paths:
-    execute_python_file('pythonFile'+file_path)
+    execute_python_file('pythonFile/'+file_path)
