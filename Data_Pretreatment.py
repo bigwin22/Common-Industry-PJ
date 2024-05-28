@@ -42,6 +42,15 @@ def create_indicator_df(kor_data, jpn_data):
         last_nonzero_index_jpn = next((i for i, value in enumerate(reversed(jpn_values)) if value != 0), len(jpn_values))
         last_nonzero_index = max(last_nonzero_index_kor, last_nonzero_index_jpn)
 
+        for i in range(first_nonzero_index, len(kor_values) - last_nonzero_index):
+            if kor_values[i] == 0:
+                kor_values[i] = None        
+                first_nonzero_index = i
+            if jpn_values[i] == 0:
+                jpn_values[i] = None
+                first_nonzero_index = i
+
+
         # 0이 아닌 값부터 데이터 저장, 마지막 0 제거
         if last_nonzero_index != 0:
             combined_data[indicator]['Year'] = years[first_nonzero_index:len(years) - last_nonzero_index]
