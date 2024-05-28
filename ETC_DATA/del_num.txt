@@ -1,0 +1,6 @@
+worldBank/NV_IND_TOTL_ZS의 데이터가 중복되었습니다. 어떤 데이터를 삭제할까요? (1: WorldBank_WDI_CSV, 2: WorldBank_Jobs_CSV)2
+worldBank/SL_TLF_CACT_NE_ZS의 데이터가 중복되었습니다. 어떤 데이터를 삭제할까요? (1: WorldBank_Gender_Stats_CSV, 2: WorldBank_WDI_CSV)1
+worldBank/NY_GDP_PCAP_KD_ZG의 데이터가 중복되었습니다. 어떤 데이터를 삭제할까요? (1: WorldBank_WDI_CSV, 2: WorldBank_SDG_CSV)2
+worldBank/CM_MKT_LCAP_GD_ZS의 데이터가 중복되었습니다. 어떤 데이터를 삭제할까요? (1: WorldBank_WDI_CSV, 2: WorldBank_Jobs_CSV)2
+worldBank/NE_TRD_GNFS_ZS의 데이터가 중복되었습니다. 어떤 데이터를 삭제할까요? (1: WorldBank_WDI_CSV, 2: WorldBank_MDG_CSV)2
+worldBank/BN_CAB_XOKA_GD_ZS의 데이터가 중복되었습니다. 어떤 데이터를 삭제할까요? (1: WorldBank_WDI_CSV, 2: WorldBank_SDG_CSV)2
